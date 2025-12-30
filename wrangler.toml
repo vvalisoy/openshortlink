@@ -1,0 +1,76 @@
+name = "openshortlink"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+
+# D1 Database
+# Note: database_id does NOT support environment variable substitution
+# You must hardcode your actual database ID here (get it from: wrangler d1 list)
+# This ID is not considered highly sensitive as it requires account access to use
+[[d1_databases]]
+binding = "DB"
+database_name = "openshortlink-db"
+database_id = "bb1d2dee-ed17-4873-a9eb-27ebdb927c81"  # Replace with your actual database ID
+
+
+# KV Namespace
+# Note: id and preview_id do NOT support environment variable substitution
+# You must hardcode your actual KV namespace IDs here (get them from: wrangler kv:namespace list)
+[[kv_namespaces]]
+binding = "CACHE"
+id = "0db8d1a8ee4e470891ac2b02a588ad29"  # Replace with your actual KV namespace ID
+preview_id = ""  # Replace with your actual KV preview ID
+
+
+# Analytics Engine
+[[analytics_engine_datasets]]
+binding = "ANALYTICS"
+dataset = "openshortlink-analytics"
+
+
+# Environment variables
+[vars]
+ENVIRONMENT = "production"
+LOG_LEVEL = "info"
+CACHE_TTL = "604800"
+MAX_LINKS_PER_DOMAIN = "10000"
+
+
+# Security & API Secrets:
+# For one-click deploy: Values are prompted from .dev.vars.example
+# For local development: Copy .dev.vars.example to .dev.vars and fill in values
+# For production: Use "wrangler secret put SETUP_TOKEN" etc.
+#
+# Required secrets:
+#   SETUP_TOKEN - Generated with: openssl rand -hex 32
+#   CLOUDFLARE_ACCOUNT_ID - Your Cloudflare account ID
+#   CLOUDFLARE_API_TOKEN - API token with "Account Analytics Read" permission
+
+
+
+
+
+# Cron triggers for scheduled tasks
+# Daily tasks (midnight UTC): analytics aggregation and top 100 status check
+# Status check every 6 hours: regular link status monitoring
+[triggers]
+crons = ["0 0 * * *", "0 */6 * * *"]
+
+# Observability configuration
+[observability]
+enabled = false
+head_sampling_rate = 1
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+invocation_logs = true
+
+[observability.traces]
+enabled = false
+head_sampling_rate = 1
+
+[placement]
+mode = "smart"
+
